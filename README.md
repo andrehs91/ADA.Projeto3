@@ -9,6 +9,7 @@ A solução consiste em:
 - Um **consumer** (Worker Service) para processamento das transações;
 - Um **cache** (Redis) para melhora no desempenho do processamento das transações;
 - Um **sistema de armazenamento de objetos** (MinIO) para armazenamento dos relatórios gerados.
+- Todos estes itens serão executados em um cluster Kubernetes.
 
 ### Regras de Negócio
 &nbsp; &nbsp; O **producer** verifica apenas se os dados enviados estão de acordo com as restrições do objeto TransacaoDTO.\
@@ -18,6 +19,8 @@ A solução consiste em:
 &nbsp; &nbsp; A consulta aos relatórios deve ser feita no **producer**. As transações fraudulentas permanecerão em cache até que o relatório seja gerado. Quando ele for gerado, um arquivo será criado no MinIO e seu link será fornecido. A lista de links gerados por conta será armazenada em cache e também poderá ser consultada.
 
 ### Como Executar este Projeto Localmente
+
+**Obs.:** Este projeto foi construído utilizando o Docker Desktop para rodar um *Kubernetes single-node cluster*. Caso esteja utilizando uma abordagem diferente, alterações poderão ser necessárias.
 
 1. (Opcional) Caso teu cluster não possua um Ingress configurado, execute este comando: ` kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.0/deploy/static/provider/cloud/deploy.yaml `;
 2. crie um servidor de métricas: ` kubectl apply -f 01.metrics-server.yaml `;
