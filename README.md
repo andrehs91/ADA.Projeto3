@@ -20,7 +20,8 @@ A solução consiste em:
 
 ### Como Executar este Projeto Localmente
 
-**Obs.:** Este projeto foi construído utilizando o Docker Desktop para rodar um *Kubernetes single-node cluster*. Caso esteja utilizando uma abordagem diferente, alterações poderão ser necessárias.
+**Obs¹.:** Este projeto foi construído utilizando o Docker Desktop para rodar um *Kubernetes single-node cluster*. Caso esteja utilizando uma abordagem diferente, alterações poderão ser necessárias.
+**Obs2.:** Os arquivos de definição que deverão ser executados estão localizados na pasta Kubernetes.
 
 1. (Opcional) Caso teu cluster não possua um Ingress configurado, execute este comando: ` kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.0/deploy/static/provider/cloud/deploy.yaml `;
 2. crie um servidor de métricas: ` kubectl apply -f 01.metrics-server.yaml `;
