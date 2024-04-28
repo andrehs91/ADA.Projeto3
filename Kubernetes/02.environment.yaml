@@ -1,0 +1,47 @@
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: projeto3
+
+---
+
+# Environment Variables ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: environment-variables
+  namespace: projeto3
+data:
+  APPHOSTNAME: "localhost"
+  CONNECTIONSTRINGS_REDIS: "redis"
+  RABBITMQ_HOSTNAME: "rabbitmq"
+  MINIO_ENDPOINT: "minio"
+  MINIO_ISSECURE: "false"
+  MINIO_PORT: "9000"
+
+---
+
+# RabbitMQ Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rabbitmq-secret
+  namespace: projeto3
+type: kubernetes.io/basic-auth
+stringData:
+  username: usuariorabbitmq
+  password: senharabbitmq
+
+---
+
+# MinIO Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minio-secret
+  namespace: projeto3
+type: kubernetes.io/basic-auth
+stringData:
+  username: usuariominio
+  password: senhaminio

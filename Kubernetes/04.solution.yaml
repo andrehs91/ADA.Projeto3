@@ -1,0 +1,529 @@
+# RabbitMQ Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: projeto3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3.13-management
+        ports:
+        - containerPort: 5672
+        - containerPort: 15672
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: username
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: password
+        volumeMounts:
+        - name: rabbitmq-data
+          mountPath: /var/lib/rabbitmq
+        resources:
+          requests:
+            cpu: "0.2"
+            memory: "512Mi"
+          limits:
+            cpu: "0.4"
+            memory: "1024Mi"
+        livenessProbe:
+          exec:
+            command: ["rabbitmq-diagnostics", "status"]
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 15
+        readinessProbe:
+          exec:
+            command: ["rabbitmq-diagnostics", "ping"]
+          initialDelaySeconds: 20
+          periodSeconds: 60
+          timeoutSeconds: 10
+      volumes:
+      - name: rabbitmq-data
+        persistentVolumeClaim:
+          claimName: rabbitmq-data-pvc
+
+---
+
+# RabbitMQ Service ClusterIP
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: rabbitmq
+  name: rabbitmq
+  namespace: projeto3
+spec:
+  type: ClusterIP
+  selector:
+    app: rabbitmq
+  ports:
+  - name: 5672-5672
+    port: 5672
+    protocol: TCP
+    targetPort: 5672
+
+---
+
+# RabbitMQ Service NodePort
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: rabbitmq
+  name: rabbitmq-nodeport
+  namespace: projeto3
+spec:
+  type: NodePort
+  selector:
+    app: rabbitmq
+  ports:
+  - name: 15672-15672
+    port: 15672
+    protocol: TCP
+    targetPort: 15672
+    nodePort: 30001
+
+---
+
+# Redis Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: projeto3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        args:
+        - "redis-server"
+        - "--save"
+        - "60"
+        - "1"
+        - "--loglevel"
+        - "warning"
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        resources:
+          requests:
+            cpu: "0.05"
+            memory: "256Mi"
+          limits:
+            cpu: "0.2"
+            memory: "512Mi"
+        livenessProbe:
+          exec:
+            command:
+              - "redis-cli"
+              - "ping"
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+              - "redis-cli"
+              - "ping"
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          failureThreshold: 3
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-data-pvc
+
+---
+
+# Redis Service ClusterIP
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: redis
+  name: redis
+  namespace: projeto3
+spec:
+  type: ClusterIP
+  selector:
+    app: redis
+  ports:
+  - name: 6379-6379
+    port: 6379
+    protocol: TCP
+    targetPort: 6379
+
+---
+
+# Minio Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: projeto3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+      - name: minio
+        image: quay.io/minio/minio
+        ports:
+        - containerPort: 9000
+        - containerPort: 9001
+        env:
+        - name: MINIO_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: minio-secret
+              key: username
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: minio-secret
+              key: password
+        command:
+          - /bin/bash
+          - -c
+        args:
+          - minio server /data --console-address :9001
+        livenessProbe:
+          httpGet:
+            path: /minio/health/live
+            port: 9000
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /minio/health/ready
+            port: 9000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          failureThreshold: 3
+        volumeMounts:
+        - name: minio-data
+          mountPath: /data
+        resources:
+          requests:
+            cpu: "0.05"
+            memory: "256Mi"
+          limits:
+            cpu: "0.2"
+            memory: "512Mi"
+      volumes:
+      - name: minio-data
+        persistentVolumeClaim:
+          claimName: minio-data-pvc
+
+---
+
+# Minio Service ClusterIP
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: minio
+  name: minio
+  namespace: projeto3
+spec:
+  type: ClusterIP
+  selector:
+    app: minio
+  ports:
+  - name: 9000-9000
+    port: 9000
+    protocol: TCP
+    targetPort: 9000
+
+---
+
+# Minio Service NodePort
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: minio
+  name: minio-nodeport
+  namespace: projeto3
+spec:
+  type: NodePort
+  selector:
+    app: minio
+  ports:
+  - name: 9001-9001
+    port: 9001
+    protocol: TCP
+    targetPort: 9001
+    nodePort: 30002
+
+---
+
+# Consumer Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer
+  namespace: projeto3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consumer
+  template:
+    metadata:
+      labels:
+        app: consumer
+    spec:
+      containers:
+      - name: consumer
+        image: andrehs/ada.consumer
+        env:
+        - name: CONNECTIONSTRINGS_REDIS
+          valueFrom:
+            configMapKeyRef:
+              name: environment-variables
+              key: CONNECTIONSTRINGS_REDIS
+        - name: RABBITMQ_HOSTNAME
+          valueFrom:
+            configMapKeyRef:
+              name: environment-variables
+              key: RABBITMQ_HOSTNAME
+        - name: RABBITMQ_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: username
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: password
+        resources:
+          requests:
+            cpu: "0.05"
+            memory: "128Mi"
+          limits:
+            cpu: "0.2"
+            memory: "512Mi"
+
+---
+
+# Producer Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer
+  namespace: projeto3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+      - name: producer
+        image: andrehs/ada.producer
+        ports:
+        - containerPort: 8080
+        - containerPort: 8081
+        env:
+        - name: APPHOSTNAME
+          valueFrom:
+            configMapKeyRef:
+              name: environment-variables
+              key: APPHOSTNAME
+        - name: CONNECTIONSTRINGS_REDIS
+          valueFrom:
+            configMapKeyRef:
+              name: environment-variables
+              key: CONNECTIONSTRINGS_REDIS
+        - name: RABBITMQ_HOSTNAME
+          valueFrom:
+            configMapKeyRef:
+              name: environment-variables
+              key: RABBITMQ_HOSTNAME
+        - name: RABBITMQ_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: username
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: password
+        - name: MINIO_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: environment-variables
+              key: MINIO_ENDPOINT
+        - name: MINIO_ACCESSKEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secret
+              key: username
+        - name: MINIO_SECRETKEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secret
+              key: password
+        - name: MINIO_ISSECURE
+          valueFrom:
+            configMapKeyRef:
+              name: environment-variables
+              key: MINIO_ISSECURE
+        - name: MINIO_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: environment-variables
+              key: MINIO_PORT
+        resources:
+          requests:
+            cpu: "0.05"
+            memory: "128Mi"
+          limits:
+            cpu: "0.2"
+            memory: "512Mi"
+
+---
+
+# Producer Service
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: producer
+  name: producer
+  namespace: projeto3
+spec:
+  selector:
+    app: producer
+  ports:
+  - name: 8080-8080
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  - name: 8081-8081
+    port: 8081
+    protocol: TCP
+    targetPort: 8081
+
+---
+
+# Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: projeto3-ingress
+  namespace: projeto3
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: localhost
+    http:
+      paths:
+      - backend:
+          service:
+            name: producer
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer: {}
+
+---
+
+# Consumer Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: consumer-hpa
+  namespace: projeto3
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: consumer
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 50
+
+---
+
+# Producer Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: producer-hpa
+  namespace: projeto3
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: producer
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 50

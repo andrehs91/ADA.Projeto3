@@ -1,0 +1,6 @@
+@ADA.Producer_HostAddress = http://localhost:5129
+
+GET {{ADA.Producer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

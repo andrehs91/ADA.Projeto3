@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34322.80
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADA.Producer", "ADA.Producer\ADA.Producer.csproj", "{DE2ED9C6-A02C-44C4-B9BD-DAF6F9E95EE3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADA.Consumer", "ADA.Consumer\ADA.Consumer.csproj", "{645E5F30-D1BA-4769-B6DC-B60FDC3D153C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE2ED9C6-A02C-44C4-B9BD-DAF6F9E95EE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE2ED9C6-A02C-44C4-B9BD-DAF6F9E95EE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE2ED9C6-A02C-44C4-B9BD-DAF6F9E95EE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE2ED9C6-A02C-44C4-B9BD-DAF6F9E95EE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{645E5F30-D1BA-4769-B6DC-B60FDC3D153C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{645E5F30-D1BA-4769-B6DC-B60FDC3D153C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{645E5F30-D1BA-4769-B6DC-B60FDC3D153C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{645E5F30-D1BA-4769-B6DC-B60FDC3D153C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {49E71D31-84F0-4B10-8A0C-4A4C1D398CA4}
+	EndGlobalSection
+EndGlobal
