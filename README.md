@@ -1,4 +1,4 @@
-# ADA Tech - Módulo 3 (Conteinerização)
+# ADA Tech - Módulo 3 (Orquestração)
 
 **Observação:** A lógica de negócio e a estrutura básica deste projeto foi aproveitada do projeto entregue no módulo 2.
 
