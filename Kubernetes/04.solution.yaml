@@ -334,10 +334,10 @@ spec:
               key: password
         resources:
           requests:
-            cpu: "0.05"
+            cpu: "0.1"
             memory: "128Mi"
           limits:
-            cpu: "0.2"
+            cpu: "0.4"
             memory: "512Mi"
 
 ---

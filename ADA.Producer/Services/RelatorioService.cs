@@ -42,7 +42,7 @@ public class RelatorioService : IRelatorioService
             .Build();
     }
 
-    private async void CreateBucketIfNotExistsAsync()
+    private async Task CreateBucketIfNotExistsAsync()
     {
         using var minio = GetClient();
 
@@ -69,6 +69,8 @@ public class RelatorioService : IRelatorioService
         //    new GetPolicyArgs().WithBucket(_bucketName)
         //).ConfigureAwait(false);
         //_logger.LogDebug("Policy: " + policy);
+
+        return;
     }
 
     public async Task<string> GerarRelatorioAsync(string contaOrigem)
@@ -88,7 +90,7 @@ public class RelatorioService : IRelatorioService
         streamWriter.Flush();
         memoryStream.Position = 0;
 
-        CreateBucketIfNotExistsAsync();
+        await CreateBucketIfNotExistsAsync();
 
         string objectName = $"{contaOrigem}_{DateTime.Now:yyyyMMddHHmmss}.txt";
         using var minio = GetClient();

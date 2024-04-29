@@ -24,7 +24,7 @@ A solução consiste em:
 **Obs².:** Os arquivos de definição que deverão ser executados estão localizados na pasta Kubernetes.
 
 1. (Opcional) Caso teu cluster não possua um Ingress configurado, execute este comando: ` kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.0/deploy/static/provider/cloud/deploy.yaml `;
-2. crie um servidor de métricas: ` kubectl apply -f 01.metrics-server.yaml `;
+2. (Opcional) Caso teu cluster não possua um servidor de métricas configurado, execute este comando: ` kubectl apply -f 01.metrics-server.yaml `;
 3. Crie o ConfigMap e as Secrets: ` kubectl apply -f 02.environment.yaml `;
 4. Crie os PersistentVolumeClaim: ` kubectl apply -f 03.volumes.yaml `;
 5. Execute o arquivo responsável por criar a solução: ` 04.solution.yaml `;
